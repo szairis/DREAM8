@@ -11,7 +11,7 @@ for cell_line in cell_lines:
         f.readline(); f.readline(); f.readline(); f.readline()
     else:
         f.readline(); f.readline(); f.readline()
-    nodes = f.readline().split(',')[4:]
+    nodes = f.readline().strip().split(',')[4:]
     inhibs = ['GSK690693','GSK690693_GSK1120212','PD173074','DMSO']
     stims = ['FGF1','Insulin','EGF','IGF1','HGF','Serum','NRG1','PBS']
     timepts = [0,5,15,30,60,120,240]
@@ -34,7 +34,7 @@ for cell_line in cell_lines:
     ss_4_counter = 0
     
     for line in f:
-        frags = line.split(',')
+        frags = line.strip().split(',')
         if frags[3] != '0min':
             p4d.ix[frags[1], frags[2], time_conversions[frags[3]], nodes] = frags[4:]
         else:
