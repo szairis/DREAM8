@@ -1,0 +1,5 @@
+- write the pandas panels out to json for each cell line
+
+- make a simple d3 plot, like time series
+
+- figure out how to implement a sliding scale or play button for time point

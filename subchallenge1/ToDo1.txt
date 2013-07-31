@@ -1,0 +1,5 @@
+- create benchmark submission
+    - for 1A use raul's poster
+    - for 1B use a random topology
+
+- gain insight into what scoring function is being used
