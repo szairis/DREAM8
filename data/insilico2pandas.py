@@ -43,7 +43,7 @@ lig_conversions = {'loLIG1':('lo_lig1','no_lig2'), 'hiLIG1':('hi_lig1','no_lig2'
                     'hiLIG2':('no_lig1','hi_lig2'), 'loLIG1+loLIG2':('lo_lig1','lo_lig2'), 'loLIG1+hiLIG2':('lo_lig1','hi_lig2'),
                     'hiLIG1+loLIG2':('hi_lig1','lo_lig2'), 'hiLIG1+hiLIG2':('hi_lig1','hi_lig2')}
 
-for i in range(200):
+for i in range(220):
     frags1 = f.readline().strip().split(',')
     frags2 = f.readline().strip().split(',')
     frags3 = f.readline().strip().split(',')
