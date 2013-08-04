@@ -61,7 +61,9 @@ for cell_line in cell_lines:
         p4d.ix['GSK690693_GSK1120212',stim,0,:] = ss_2
         p4d.ix['PD173074',stim,0,:] = ss_3
         p4d.ix['DMSO',stim,0,:] = ss_4
-    
+    if cell_line in ['BT20', 'MCF7']:
+        p4d = p4d.drop('FOXO3_pS318_pS321', axis=3)
+    print 'THE SHAPE OF THE PANEL IS:', np.shape(p4d)
     store.append(cell_line, p4d)
     print cell_line.upper() + ':'
     for inhib in inhibs:

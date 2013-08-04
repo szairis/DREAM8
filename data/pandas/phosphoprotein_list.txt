@@ -1,0 +1,83 @@
+-----------
+RTK:
+-----------
+EGFR_pY1068                                                                 epidermal growth factor receptor (RTK)
+EGFR_pY1173
+EGFR_pY992
+ERBB2_pY1248                                                                another EGFR protein
+ERBB3_pY1298                                                                another EGFR protein
+MET_pY1235                                                                  HGFR (RTK)
+SRC_pY416                                                                   proto-oncogene homologous to RSV v-Src protein (EGFR upregulates it)
+SRC_pY527
+
+------------------
+MAPK Signaling:
+------------------
+RAF1_pS338                                                                  MAP3K, downstream of ras
+MAP2K1_pS217_S221                                                           MEK1
+MAPK14_pT180_Y182                                                           p38-alpha
+MAPK1_pT202_Y204.MAPK3_pT202_Y204                                           ERK2
+MAPK8_pT183_pT185                                                           JNK1
+PEA15_pS116                                                                 death effector protein downstream of JNK
+JUN_pS73                                                                    downstream of JNK
+RPS6KA1_pT359_S363                                                          ribosomal protein S6 kinase (regulated by ERK)
+RPS6KB1_pT389
+RPS6_pS235_S236                                                             gotta be a target of RPS6K (obviously)
+RPS6_pS240_S244
+
+-------------------
+Protein Kinase B:
+-------------------
+AKT1S1_pT246                                                                protein kinase B
+AKT1_pS473.AKT2_pS473.AKT3_pS473
+AKT1_pT308.AKT2_pT308.AKT3_pT308
+MTOR_pS2448                                                                 COMPLICATED
+RICTOR_pT1135                                                               rapamycin insensitive companion of mTOR
+BAD_pS112                                                                   bcl2 associated death protein (apoptosis)
+
+-------------------
+Protein Kinase C:
+-------------------
+PRKCA_pS657                                                                 protein kinase C (any GPCR signaling)
+PRKCA_pS660.PRKCB_pS660.PRKCD_pS660.PRKCE_pS660.PRKCH_pS660.PRKCQ_pS660
+PRKCD
+
+-----------------
+STAT Signaling:
+-----------------
+STAT3_pY705                                                                 inducer of transcription downstream of JAK RTK signaling
+
+------------------
+HIPPO Signaling:
+------------------
+WWTR1_pS89                                                                  downstream hippo signaling, restricts proliferation and promotes apoptosis
+YAP1_pS127                                                                  potent oncogene, main effector of hippo signaling, might interact with WWTR1
+
+-------------
+Metabolism:
+-------------
+ACACA_pS79.ACACB_pS79                                                       acetyl CoA carboxylase (metabolism)
+GSK3A_pS9.GSK3B_pS9                                                         glycogen synthase kinase (inactivates glycogen synthase)
+GSK3A_pS9_pS21.GSK3B_pS9_pS21
+PRKAA1_pT172.PRKAA2_pT172                                                   AMPK (energy sensing and starvation)
+PDK1_pS241                                                                  pyruvate dehydrogenase kinase (metabolism)
+
+-------------------
+Nuclear Proteins:
+-------------------
+CDKN1B_pT157                                                                cyclin dependent kinase (cell cycle control)
+CDKN1B_pT198
+CHEK1_pS345                                                                 ser/threo kinases (cell cycle control)
+CHEK2_pT68
+EIF4EBP1_pS65
+EIF4EBP1_pT37_pT46
+ESR1_pS118                                                                  estrogen receptor (sits in the nucleus)
+RB1_pS807_S811                                                              retinoblastoma protein (cell cycle control)
+YBX1_PS102                                                                  binds and is degraded by RBBP6 which also binds RB1 (involved in metastasis)
+RELA_p65_pS536                                                              part of NF-kB complex
+
+------------------
+MISC:
+------------------
+NDRG1_pT346                                                                 (involved in stress response)
+
