@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+#import pdb
 
 store = pd.HDFStore('pandas/insilico_panels', mode='w')
 
@@ -13,11 +14,10 @@ lig1 = ['no_lig1','lo_lig1','hi_lig1']
 lig2 = ['no_lig2','lo_lig2','hi_lig2']
 timepts = [0,1,2,4,6,10,15,30,45,60,120]
 
-tmp = np.zeros((3,3,11,len(nodes)))
-p4d_none = pd.Panel4D(tmp)
-p4d_inh1 = pd.Panel4D(tmp)
-p4d_inh2 = pd.Panel4D(tmp)
-p4d_inh3 = pd.Panel4D(tmp)
+p4d_none = pd.Panel4D(np.zeros((3, 3, 11, len(nodes))))
+p4d_inh1 = pd.Panel4D(np.zeros((3, 3, 11, len(nodes))))
+p4d_inh2 = pd.Panel4D(np.zeros((3, 3, 11, len(nodes))))
+p4d_inh3 = pd.Panel4D(np.zeros((3, 3, 11, len(nodes))))
 p4d_none.labels = lig1
 p4d_none.items = lig2
 p4d_none.major_axis = timepts
