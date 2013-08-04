@@ -8,9 +8,9 @@ f = open(fname)
 
 nodes = f.readline().strip().split(',')[4:]
 print nodes
-inhibs = ['none','INH1','INH2','INH3']
-lig1 = ['none','lo','hi']
-lig2 = ['none','lo','hi']
+inhibs = ['No_INH','INH1','INH2','INH3']
+lig1 = ['no_lig1','lo_lig1','hi_lig1']
+lig2 = ['no_lig2','lo_lig2','hi_lig2']
 timepts = [0,1,2,4,6,10,15,30,45,60,120]
 
 tmp = np.zeros((3,3,11,len(nodes)))
@@ -39,9 +39,9 @@ p4d_inh3.minor_axis = nodes
 time_conversions = {'0min':0, '1min':1, '2min':2, '4min':4, '6min':6, '10min':10, 
                     '15min':15, '30min':30, '45min':45, '60min':60, '120min':120}
 
-lig_conversions = {'loLIG1':('lo','none'), 'hiLIG1':('hi','none'), 'loLIG2':('none','lo'),
-                    'hiLIG2':('none','hi'), 'loLIG1+loLIG2':('lo','lo'), 'loLIG1+hiLIG2':('lo','hi'),
-                    'hiLIG1+loLIG2':('hi','lo'), 'hiLIG1+hiLIG2':('hi','hi')}
+lig_conversions = {'loLIG1':('lo_lig1','no_lig2'), 'hiLIG1':('hi_lig1','no_lig2'), 'loLIG2':('no_lig1','lo_lig2'),
+                    'hiLIG2':('no_lig1','hi_lig2'), 'loLIG1+loLIG2':('lo_lig1','lo_lig2'), 'loLIG1+hiLIG2':('lo_lig1','hi_lig2'),
+                    'hiLIG1+loLIG2':('hi_lig1','lo_lig2'), 'hiLIG1+hiLIG2':('hi_lig1','hi_lig2')}
 
 for i in range(200):
     frags1 = f.readline().strip().split(',')
@@ -64,7 +64,7 @@ for i in range(200):
         p4d_inh3.ix[lig_conversions[frags1[2]][0], lig_conversions[frags1[2]][1], time_conversions[frags1[3]], :] = avg_arr
     
 
-store.append('none', p4d_none)
+store.append('No_INH', p4d_none)
 store.append('INH1', p4d_inh1)
 store.append('INH2', p4d_inh2)
 store.append('INH3', p4d_inh3)
