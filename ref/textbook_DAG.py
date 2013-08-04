@@ -57,32 +57,32 @@ DG.add_nodes_from(proteins)
 #DG.add_edge(, )
 
 ## RTK
+
+
 DG.add_edge("EGFR_pY1068", "SRC_pY416")
 DG.add_edge("EGFR_pY1173", "SRC_pY416")
 DG.add_edge("EGFR_pY992", "SRC_pY416")
-DG.add_edge("ERBB2_pY1248", "SRC_pY416")
-DG.add_edge("ERBB3_pY1298", "SRC_pY416")
 DG.add_edge("EGFR_pY1068", "SRC_pY527")
 DG.add_edge("EGFR_pY1173", "SRC_pY527")
 DG.add_edge("EGFR_pY992", "SRC_pY527")
-DG.add_edge("ERBB2_pY1248", "SRC_pY527")
-DG.add_edge("ERBB3_pY1298", "SRC_pY527")
 
 
 ## MAPK signaling
 DG.add_edge("EGFR_pY1068", "RAF1_pS338")
 DG.add_edge("EGFR_pY1173", "RAF1_pS338")
 DG.add_edge("EGFR_pY992", "RAF1_pS338")
-DG.add_edge("ERBB2_pY1248", "RAF1_pS338")
-DG.add_edge("ERBB3_pY1298", "RAF1_pS338")
 DG.add_edge("MET_pY1235", "RAF1_pS338")
+DG.add_edge("EGFR_pY1068", "MAPK8_pT183_pT185")
+DG.add_edge("EGFR_pY1173", "MAPK8_pT183_pT185")
+DG.add_edge("EGFR_pY992", "MAPK8_pT183_pT185")
 DG.add_edge("SRC_pY416", "RAF1_pS338")
 DG.add_edge("SRC_pY527", "RAF1_pS338")
 DG.add_edge("RAF1_pS338", "MAP2K1_pS217_S221")
 DG.add_edge("MAP2K1_pS217_S221", "MAPK14_pT180_Y182")
 DG.add_edge("MAP2K1_pS217_S221", "MAPK1_pT202_Y204.MAPK3_pT202_Y204")
-DG.add_edge("MAP2K1_pS217_S221", "MAPK8_pT183_pT185")
+#DG.add_edge("MAP2K1_pS217_S221", "MAPK8_pT183_pT185")          there is no MEK --> JNK
 DG.add_edge("MAPK8_pT183_pT185", "JUN_pS73")
+DG.add_edge("MAPK8_pT183_pT185", "PEA15_pS116")
 DG.add_edge("MAPK1_pT202_Y204.MAPK3_pT202_Y204", "RPS6KA1_pT359_S363")
 DG.add_edge("MAPK1_pT202_Y204.MAPK3_pT202_Y204", "RPS6KB1_pT389")
 DG.add_edge("RPS6KA1_pT359_S363", "RPS6_pS235_S236")
