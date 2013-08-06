@@ -62,14 +62,15 @@ for cell_line in cell_lines:
         p4d.ix['PD173074',stim,0,:] = ss_3
         p4d.ix['DMSO',stim,0,:] = ss_4
     if cell_line in ['BT20', 'MCF7']:
-        p4d = p4d.drop('FOXO3_pS318_pS321', axis=3)
+        p4d = p4d.drop('FOXO3a_pS318_S321', axis=3)
+    p4d = p4d.drop('TAZ_pS89', axis=3)
     print 'THE SHAPE OF THE PANEL IS:', np.shape(p4d)
     store.append(cell_line, p4d)
     print cell_line.upper() + ':'
     for inhib in inhibs:
         for stim in stims:
             for time in timepts:
-                if p4d.ix[inhib, stim, time, 'EIF4EBP1_pS65'] == 0:
+                if p4d.ix[inhib, stim, time, '4EBP1_pS65'] == 0:
                     print (inhib, stim, time)
     print '\n'
     f.close()
