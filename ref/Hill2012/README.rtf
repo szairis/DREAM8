@@ -1,0 +1,161 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1187\cocoasubrtf390
+{\fonttbl\f0\ftech\fcharset77 Symbol;\f1\fmodern\fcharset0 CourierNewPSMT;\f2\fnil\fcharset0 Calibri;
+\f3\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;\red34\green139\blue34;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat0\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}
+{\list\listtemplateid3\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid201\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid3}
+{\list\listtemplateid4\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid301\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid4}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}}
+{\info
+{\author Steven}}\paperw15840\paperh12240\margl1440\margr1440\vieww15840\viewh12240\viewkind1\viewscale142
+\deftab720
+\pard\pardeftab720\li284\fi-284\ri0
+\ls1\ilvl0
+\f0\fs16 \cf0 \'a5	
+\f1 To run network inference as described in Hill et al. (2012), to appear in Bioinformatics:	\
+\pard\pardeftab720\ri0
+\cf0 \
+\pard\pardeftab720\li720\fi-360\ri0
+\ls2\ilvl0\cf0 -	download and extract the code .zip to a folder in your MATLAB path\
+-	call function dynamic_network_inference from the Matlab prompt; help file reproduced below.\
+\pard\pardeftab720\li709\ri0
+\cf0 (change the page orientation to landscape and reduce font size for easier reading)\
+\pard\pardeftab720\ri0
+\cf0 \
+\
+The following data files are also available at mukherjeelab.nki.nl/DBN\
+lo\
+\pard\pardeftab720\li284\fi-284\ri0
+\ls3\ilvl0
+\f0 \cf0 \'a5	
+\f1 The MATLAB MAT file \'91hill_et_al_data_results\'92 contains the breast cancer data analysed in the paper, inputs necessary to run inference and the outputs you should obtain upon running the following:\
+\pard\pardeftab720\ri0
+\cf0 \
+\pard\pardeftab720\li284\ri0
+\cf0 [edge_prob_matrix interaction_sign_matrix chosen_lambda] = dynamic_network_inference(log(MDAMB468_data),4,prior_graph,0:0.5:10,'full',1,0);\
+\pard\pardeftab720\ri0
+\cf0 \
+\
+\pard\pardeftab720\li284\fi-284\ri0
+\ls4\ilvl0
+\f0 \cf0 \'a5	
+\f1 The breast cancer data in CSV format.\
+\pard\pardeftab720\ri0
+\cf0 \
+\
+dynamic_network_inference.m help file:\
+\
+\pard\pardeftab720\ri0
+
+\f2\fs20 \cf2 % [edge_prob_matrix interaction_sign_matrix chosen_lambda] = ...
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %       dynamic_network_inference(D,max_in_degree,prior_graph,lambdas,reg_mode,stdise,silent)
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % Implements exact dynamic Bayesian network inference with informative network priors, prior strength set
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %       by empirical Bayes as described in Hill et al. (2012), to appear in Bioinformatics.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % Inputs:
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % D: p x T x C data matrix or cell array of p x T x C data matrices. p = # variables (e.g. proteins), T = # time points, C = # time courses.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %    If cell array, network inference is performed on each data matrix separately with empirical Bayes performed on all data jointly.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % max_in_degree: Integer. Maximum in-degree (i.e. maximum number of parents a variable can have)
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % prior_graph: binary p x p matrix. Adjacency matrix for network prior.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %              If empty ([]) or not input, a flat prior is used.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % lambdas: Vector of prior strength parameters to be considered in empirical Bayes analysis.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %          If a single value is input, this is taken as the prior strength (no empirical Bayes is performed).
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %          Can be empty ([]) if using flat prior.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % reg_mode: String specifying regression model.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %           'full' - all interaction terms used (i.e up to product of all components in model)
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %           'quadratic' - interaction terms up to pairwise products only
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %           'linear' - no interaction terms
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %           If left empty ([]) or not input, defaults to 'linear'.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % stdise: Binary value. If 1, standardises columns of design matrices and child (2nd time slice) variable to zero mean, unit variance.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %         Defaults to 1 if left empty ([]) or not input.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % silent: Binary value. If 0, progress is displayed on command window.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %         Defaults to 0 if left empty ([]) or not input.
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % Outputs:
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % edge_prob_matrix: p x p matrix or cell array of p x p matrices. Entry (i,j) is exact posterior edge probability for edge
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %                   e=(i,j) where i is variable in `previous' (first) time slice and j is variable in `current' (second) time slice
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %                   Outputs cell array if network inference performed on multiple datasets (i.e. D is cell array).
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % interaction_sign_matrix: p x p matrix or cell array of p x p matrices. Entry (i,j) is the sign of the correlation between variables i
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %                          and j where i is variable in `previous' (first) time slice and j is variable in `current' (second) time slice
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %                          Outputs cell array if network inference performed on multiple datasets (i.e. D is cell array).
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % chosen_lambda: - Prior strength parameter selected by empirical Bayes
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 %
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % version date: 31/7/12
+\f3\fs24 \cf0 \
+
+\f2\fs20 \cf2 % \'a9 Steven Hill and Sach Mukherjee, 2012
+\f3\fs24 \cf0 \
+\pard\pardeftab720\ri0
+
+\fs16 \cf0 \
+}
