@@ -1,0 +1,46 @@
+ACC_pS79                
+PRAS40_pT246            NRG1 UP
+AKT_pS473               GSK690693 UP
+AKT_pT308               NRG1 UP, GSK690693 UP
+BAD_pS112               EGF/HGF/Serum UP, GSK1120212 DOWN
+p27_pT157               IGF1 UP
+p27_pT198               
+CHK1_pS345              
+CHK2_pT68               
+EGFR_pY1068             EGF UP, GSK1120212 UP
+EGFR_pY1173             EGF UP, GSK1120212 UP
+EGFR_pY992              EGF weak-UP
+4EBP1_pS65              
+4EBP1_pT37_pT46         
+HER2_pY1248             EGF UP
+HER3_pY1298             NRG1 UP
+ER-alpha_pS118          
+GSK3-alpha-beta_pS9     GSK690693 DOWN
+GSK3-alpha-beta_pS21_S9 GSK690693 DOWN
+c-JUN_pS73              Serum/EGF UP
+MEK1_pS217_S221         EGF/HGF/Serum/NRG1/FGF UP, GSK1120212 DOWN but late-UP for Serum/FGF
+p38_pT180_Y182          Serum UP
+MAPK_pT202_Y204         HGF/EGF/Serum/NRG1 UP, GSK690693 DOWN
+JNK_pT183_pT185         Serum weak-UP
+c-Met_pY1235            HGF UP
+mTOR_pS2448             
+NDRG1_pT346             
+PDK1_pS241              
+PEA15_pS116             PBS/NRG1 UP, GSK690693 UP
+AMPK_pT172              
+PKC-alpha_pS657         
+PKC-pan-betaII_pS660    
+PKC-delta_pS664         
+c-Raf_pS338             
+Rb_pS807_S811           
+NF-kB-p65_pS536         Serum UP
+Rictor_pT1135           GSK690693 DOWN
+p90RSK_pT359_S363       EGF/Serum/HGF UP, GSK1120212 DOWN
+p70S6K_pT389            GSK690693 DOWN
+S6_pS235_S236           Serum/EGF/HGF/ UP, both inhibitors DOWN
+S6_pS240_S244           Serum/EGF/HGF UP, both inhibitors DOWN
+Src_pY416               EGF UP, GSK1120212 UP
+Src_pY527               
+STAT3_pY705             
+YAP_pS127               Serum DOWN
+YB-1_PS102              GSK1120212 DOWN
