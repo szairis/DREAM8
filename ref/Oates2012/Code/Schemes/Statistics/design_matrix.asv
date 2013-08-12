@@ -1,0 +1,44 @@
+% COMPUTE THE DESIGN MATRIX
+% Inputs:
+% X = P*n matrix of predictor variables.
+% m = index of required model.
+% Outputs:
+% B = design matrix.
+% © Chris Oates 2011.
+
+function B = design_matrix(X,m,models,prods,lag)
+
+% include lagged predictors
+delay = 10; % delay about T/delay minutes
+temp0 = X(models(:,m),:);
+if lag == 1
+    [~,T] = size(X);
+    tau = ceil(T/delay); 
+    temp1 = temp0(:,1:end-tau); 
+    temp1 = [repmat(temp1(:,1),1,tau) temp1];
+    temp = [temp0; temp1];
+else
+    temp = temp0;
+end
+
+% compute the design matrix
+B = temp';
+B = x2fx2(B,prods);
+B(:,1) = [];
+B = standardise(B,'columns');
+end
+
+function z = x2fx2(B,prod)
+P = size(B,2);
+if strcmp(prod,'cubic')
+    z = [];
+    for k = 0:3
+        w = nchoosek(1:P,k);
+        for i = 1:size(w,1);
+            z = [z prod(B(:,w(i,:)),2)];
+        end
+    end
+else 
+    z = x2fx(B,prod);
+end
+end
