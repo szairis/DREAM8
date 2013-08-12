@@ -1,5 +1,3 @@
-- create benchmark submission
-    - for 1A use raul's poster
-    - for 1B use a random topology
+- finish the oracle for the real data, possibly submit it again for benchmarking
 
-- gain insight into what scoring function is being used
+- implement DBN in pyMC, recover Hill's results
