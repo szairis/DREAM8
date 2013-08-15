@@ -1,0 +1,15 @@
+TAZ_pS89
+FOXO3a_pS318_S321
+AIB1
+Caspase-3_active
+Caspase-9_cleavedD330
+cIAP
+COX-2
+FAK
+IFG-1R-beta
+Notch3
+p21
+PTCH
+Tau
+VASP
+XIAP
