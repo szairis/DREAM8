@@ -69,8 +69,8 @@ def im2bw(Adj, threshold):
 
 
 def score_network(Adj, Adj_true):
-    A = np.array(deepcopy(Adj), dtype='f')
-    A_true = np.array(deepcopy(Adj_true), dtype='f')
+    A = np.abs(np.array(deepcopy(Adj), dtype='f'))
+    A_true = np.abs(np.array(deepcopy(Adj_true), dtype='f'))
     n = len(A)
     A = np.reshape(A, (n**2,))
     idx = np.argsort(A)
