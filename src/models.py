@@ -6,7 +6,7 @@ import numpy as np
 from pymatbridge import Matlab
 
 
-def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0, maxtime=120):
+def hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0, maxtime=120):
     '''
     run_hill(df)
 
