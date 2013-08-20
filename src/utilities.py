@@ -65,15 +65,16 @@ def write_SIF_EDA(A, path):
     f_eda.close()
 
 
-def write_MIDAS(pred_dict, inhib_target, path, datatype='inSilico', cell_line='inSilico'):
+def write_MIDAS(pred_dict, inhib_targets, path, datatype='inSilico', cell_line='inSilico'):
     f_midas = open(path + '.csv', 'w')
-    
-    if datatype == 'inSilico':
+   
+    print datatype
+    if datatype is 'inSilico':
         stims = ['loLIG1', 'hiLIG1', 'loLIG2', 'hiLIG2', 'loLIG1_loLIG2', 'loLIG1_hiLIG2', 'hiLIG1_loLIG2', 'hiLIG1_hiLIG2']
         antibodies = list(pred_dict['loLIG1'].columns)
-        time_points = [0,1,2,4,6,10,15,30,45,60,120]
+        time_points = [0,1,2,4,6,10,15,30,60,120]
 
-    elif dataype == 'Experimental':
+    elif datatype is 'Experimental':
         stims = ['Serum','PBS','EGF','Insulin','FGF1','HGF','NRG1','IGF1']
         antibodies = list(pred_dict['Serum'].columns)
         time_points = [0,5,15,30,60,120,240]
@@ -96,7 +97,7 @@ def write_MIDAS(pred_dict, inhib_target, path, datatype='inSilico', cell_line='i
             line += '{0},{1},{2},{3},{4},{5},{6},{7}'.format(*indvec)
             line += ',{0}'.format(tp)
             for ab in antibodies:
-                if ab == inhib_target:
+                if ab in inhib_targets:
                     line += ',NA'
                 else:
                     line += ',{0}'.format(time_courses.ix[tp,ab])
