@@ -90,18 +90,20 @@ def gen_cantone(time_points, snr_cell=10, snr_meas=10, mod_S=30):
     mod_S : number of cells to average over (default=30)
 
     Output:
-    A : true adjacency matrix of Cantone model
-    dat : time series data frame
+    A : true adjacency matrix of Cantone model (dataframe)
+    dat : simulated time series (dataframe)
     '''
     
+    genes = ['CBF1', 'GAL4', 'SWI5', 'GAL80', 'ASH1']
+
     # true adjacency matrix
-    A = np.array([[0, 1, 0, 0, 0],
+    adj = np.array([[0, 1, 0, 0, 0],
                   [0, 0, 1, 0, 0],
                   [1, 0, 0, 1, 1],
                   [0, -1, 0, 0, 0],
                   [-1, 0, 0, 0, 0]])
     
-    genes = ['CBF1', 'GAL4', 'SWI5', 'GAL80', 'ASH1']
+    A = pd.DataFrame(adj, index=genes, columns=genes)
     
     
     # simulate the experiment
@@ -114,6 +116,6 @@ def gen_cantone(time_points, snr_cell=10, snr_meas=10, mod_S=30):
     noise = np.mean(y) / snr_meas
     for tidx, time in enumerate(time_points):
         y[tidx, :] = np.random.multivariate_normal(y[tidx, :], noise**2 * np.eye(P))
-    dat = pd.DataFrame(y, index=t, columns=genes)
+    dat = pd.DataFrame(y, index=time_points, columns=genes)
     
     return A, dat
