@@ -3,7 +3,7 @@ from scipy.io import savemat
 from scipy.io import loadmat
 from pymatbridge import Matlab
 
-def run_hill(df prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0):
+def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0):
     '''
     run_hill(df)
 
@@ -21,14 +21,14 @@ def run_hill(df prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', std
     D = df.values.T
 
     # .mat shuttle files
-    inPath = os.path.join(projPath, 'cache', 'dbn_wrapper_in.mat')
-    outPath = os.path.join(projPath, 'cache', 'dbn_wrapper_out.mat')
+    inPath = os.path.join('..', 'cache', 'dbn_wrapper_in.mat')
+    outPath = os.path.join('..', 'cache', 'dbn_wrapper_out.mat')
 
     # other parameters
     prior_graph = []
     lambdas = []
     max_indegree = 4
-    reg_mode = 'linear'
+    reg_mode = 'full'
     stdise = 1
     silent = 0
 
