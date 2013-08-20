@@ -1,5 +1,11 @@
+MAIN:
+
 TAZ_pS89
 FOXO3a_pS318_S321
+
+
+FULL:
+
 AIB1
 Caspase-3_active
 Caspase-9_cleavedD330
