@@ -6,7 +6,7 @@ import numpy as np
 from pymatbridge import Matlab
 
 
-def hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0, maxtime=120):
+def hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0, maxtime=120):
     '''
     run_hill(df)
 
@@ -21,7 +21,7 @@ def hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise
 
     # slice out the data we want
     # just one time series for the cantone model
-    D = df.values.T
+    D = np.transpose(panel.values, axes=(2,1,0))
 
     # .mat shuttle files
     inPath = os.path.join('..', 'cache', 'dbn_wrapper_in.mat')
@@ -46,7 +46,7 @@ def hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise
     mlab.stop()
 
     out = loadmat(outPath)
-    edge_prob = pd.DataFrame(out['e'], index=df.columns, columns=df.columns)
-    edge_sign = pd.DataFrame(out['i'], index=df.columns, columns=df.columns)
+    edge_prob = pd.DataFrame(out['e'], index=panel.minor_axis, columns=panel.minor_axis)
+    edge_sign = pd.DataFrame(out['i'], index=panel.minor_axis, columns=panel.minor_axis)
 
     return (edge_prob, edge_sign)
