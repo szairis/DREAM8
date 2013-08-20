@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from scipy.integrate import odeint
-import pdb
 
 # global parameters
 # should pass this as an additional argument to f(t, y)
@@ -62,9 +61,13 @@ p54 = 462.007
 p55 = 193.304
 
 # solve the system dy/dt = f(y, t)
-def f(y, t, Gap, Cilostamide, EPACA, PKAA):
+def f(y, t):
 
     # current state
+    for i in range(len(y)):
+        if y[i] < 0:
+            y[i] = 0
+
     unboundEGFR = y[0]
     boundEGFR = y[1]
     EGF = y[2]
@@ -90,6 +93,11 @@ def f(y, t, Gap, Cilostamide, EPACA, PKAA):
     inactiveEPAC = y[22]
     activeRap1 = y[23]
     inactiveRap1 = y[24]
+    Gap = y[25]
+    Cilostamide = y[26]
+    EPACA = y[27]
+    PKAA = y[28]
+
     
     # unboundEGFR
     f0 = -p5 * EGF * unboundEGFR + p6 * boundEGFR
@@ -141,13 +149,21 @@ def f(y, t, Gap, Cilostamide, EPACA, PKAA):
     f23 = (p37*EPAC*inactiveRap1/(p38+inactiveRap1)) - (p39*Gap*activeRap1/(p40+activeRap1)) + (p50*activeC3G*inactiveRap1/(p51+inactiveRap1))
     # inactiveRap1
     f24 = -(p37*EPAC*inactiveRap1/(p38+inactiveRap1)) + (p39*Gap*activeRap1/(p40+activeRap1)) - (p50*activeC3G*inactiveRap1/(p51+inactiveRap1))
-    
+    # Gap
+    f25 = 0
+    # Cilostamide
+    f26 = 0
+    # EPACA
+    f27 = 0
+    # PKAA
+    f28 = 0
+
     return [f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10,
              f11, f12, f13, f14, f15, f16, f17, f18, f19,
-             f20, f21, f22, f23, f24]
+             f20, f21, f22, f23, f24, f25, f26, f27, f28]
 
 
-def gen_xu(time_points, snr_meas=None, EGF=10, Gap=2400, Cilostamide=0, EPACA=0, PKAA=0):
+def gen_xu(time_points, snr_meas=None, EGF=100, Gap=2400, Cilostamide=0, EPACA=0, PKAA=0):
     
     nodes = ['unboundEGFR','boundEGFR','EGF',
              'activeC3G','inactiveC3G',
@@ -159,39 +175,38 @@ def gen_xu(time_points, snr_meas=None, EGF=10, Gap=2400, Cilostamide=0, EPACA=0,
              'Raf1','Raf1PP','RemovedRaf1',
              'PKA','inactivePKA',
              'EPAC','inactiveEPAC',
-             'activeRap1','inactiveRap1']
+             'activeRap1','inactiveRap1',
+             'Gap', 'Cilostamide', 'EPACA', 'PKAA']
     N = len(nodes)
-    
-    network_nodes = ['EGF', 'EGFR',
-                     'SOS', 'C3G', 'Ras', 'Raf1',
-                     'MEK', 'ERK',
-                     'PKA', 'EPAC', 'Rap1', 'BRaf',
+    network_nodes = ['EGF', 'boundEGFR',
+                     'activeSOS','activeC3G', 'activeRas',
+                     'Raf1PP','MEKPP', 'ERKPP',
+                     'PKA', 'EPAC', 'activeRap1', 'BRafPP',
                      'Gap', 'Cilostamide', 'EPACA', 'PKAA']
     NN = len(network_nodes)
     
     # true adjacency matrix
     # this is in a 'reduced form'
     A = pd.DataFrame(np.zeros((NN, NN)), index=network_nodes, columns=network_nodes)
-    A.ix['EGF', 'EGFR'] = 1
-    A.ix['EGFR', 'SOS'] = 1
-    A.ix['EGFR', 'C3G'] = 1
-    A.ix['SOS', 'Ras'] = 1
-    A.ix['Ras', 'Raf1'] = 1
-    A.ix['Ras', 'BRaf'] = 1
-    A.ix['Raf1', 'MEK'] = 1
-    A.ix['BRaf', 'MEK'] = 1
-    A.ix['MEK', 'ERK'] = 1
+    A.ix['EGF', 'boundEGFR'] = 1
+    A.ix['boundEGFR', 'activeSOS'] = 1
+    A.ix['boundEGFR', 'activeC3G'] = 1
+    A.ix['activeSOS', 'activeRas'] = 1
+    A.ix['activeRas', 'Raf1PP'] = 1
+    A.ix['activeRas', 'BRafPP'] = 1
+    A.ix['Raf1PP', 'MEKPP'] = 1
+    A.ix['BRafPP', 'MEKPP'] = 1
+    A.ix['MEKPP', 'ERKPP'] = 1
     A.ix['EPACA', 'EPAC'] = 1
     A.ix['PKAA', 'PKA'] = 1
     A.ix['Cilostamide', 'EPAC'] = 1
     A.ix['Cilostamide', 'PKA'] = 1
-    A.ix['EPAC', 'Rap1'] = 1
-    A.ix['Gap', 'Rap1'] = 1
-    A.ix['Gap', 'BRaf'] = 1
-    A.ix['C3G', 'Rap1'] = 1
-    A.ix['Rap1', 'BRaf'] = 1
-
-    A.ix['ERK', 'SOS'] = 1
+    A.ix['EPAC', 'activeRap1'] = 1
+    A.ix['Gap', 'activeRap1'] = 1
+    A.ix['Gap', 'BRafPP'] = 1
+    A.ix['activeC3G', 'activeRap1'] = 1
+    A.ix['activeRap1', 'BRafPP'] = 1
+    A.ix['ERKPP', 'activeSOS'] = 1
     
     # initial conditions
     unboundEGFR0 = 500
@@ -230,18 +245,23 @@ def gen_xu(time_points, snr_meas=None, EGF=10, Gap=2400, Cilostamide=0, EPACA=0,
           Raf10, Raf1PP0, removedRaf1,
           PKA0, inactivePKA0,
           EPAC0, inactiveEPAC0,
-          activeRap10, inactiveRap10]
+          activeRap10, inactiveRap10,
+          Gap, Cilostamide, EPACA, PKAA]
     
     # agonists
-    stim = (Gap, Cilostamide, EPACA, PKAA)
-    soln = odeint(f, y0, time_points, args=stim)
+    soln = odeint(f, y0, time_points)
     
     # add measurement noise to solution
     if snr_meas:
         noise = soln.mean(axis=0) / snr_meas
         for tidx, time in enumerate(time_points):
             soln[tidx, :] = np.random.multivariate_normal(soln[tidx, :], noise**2 * np.eye(N))
+        soln[soln<0] = 0
 
     dat = pd.DataFrame(soln, index=time_points, columns=nodes)
     
     return A, dat
+
+if __name__=="__main__":
+    t = np.arange(0, 1000, 5)
+    (A, dat) = gen_xu(t, 0, EGF=1000)
