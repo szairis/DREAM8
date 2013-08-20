@@ -93,7 +93,7 @@ def write_MIDAS(pred_dict, inhib_targets, path, datatype='inSilico', cell_line='
             time_courses = pred_dict[stim]
             line = '1,'
             indvec = tuple(map(int, [stim==stims[0], stim==stims[1], stim==stims[2],
-                    stim==stims[3], stims==stims[4], stim==stims[5], stim==stims[6], stim==stims[7]]))
+                    stim==stims[3], stim==stims[4], stim==stims[5], stim==stims[6], stim==stims[7]]))
             line += '{0},{1},{2},{3},{4},{5},{6},{7}'.format(*indvec)
             line += ',{0}'.format(tp)
             for ab in antibodies:
