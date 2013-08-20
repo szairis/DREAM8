@@ -1,9 +1,11 @@
 import os
 from scipy.io import savemat
 from scipy.io import loadmat
+import pandas as pd
+import numpy as np
 from pymatbridge import Matlab
 
-def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0):
+def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0, maxtime=120):
     '''
     run_hill(df)
 
@@ -13,7 +15,7 @@ def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', st
     output: dict containing key 'e' and key 'i' from Hill's code
     '''
 
-    mlab = Matlab(maxtime=120)
+    mlab = Matlab(maxtime=maxtime)
     mlab.start()
 
     # slice out the data we want
@@ -23,14 +25,6 @@ def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', st
     # .mat shuttle files
     inPath = os.path.join('..', 'cache', 'dbn_wrapper_in.mat')
     outPath = os.path.join('..', 'cache', 'dbn_wrapper_out.mat')
-
-    # other parameters
-    prior_graph = []
-    lambdas = []
-    max_indegree = 4
-    reg_mode = 'full'
-    stdise = 1
-    silent = 0
 
     # save the matlab object that the DBN wrapper will load
     # contains all the required parameters for the DBN code
@@ -46,10 +40,12 @@ def run_hill(df, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', st
     args = {'inPath' : inPath, 'outPath' : outPath}
 
     # call DBN code
-    res = mlab.run_func(os.path.join(projPath, 'src', 'dbn_wrapper.m'), args, maxtime=120)
+    res = mlab.run_func('dbn_wrapper.m', args, maxtime=maxtime)
 
     mlab.stop()
 
     out = loadmat(outPath)
+    edge_prob = pd.DataFrame(out['e'], index=df.columns, columns=df.columns)
+    edge_sign = pd.DataFrame(out['i'], index=df.columns, columns=df.columns)
 
-    return out
+    return (edge_prob, edge_sign)
