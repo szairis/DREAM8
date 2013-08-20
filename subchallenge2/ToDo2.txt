@@ -1,5 +1,0 @@
-- write down ODE systems for real and insilico based on network topologies
-
-- fit parameters of this system under appropriate loss function
-
-- simulate test inhibitors by setting initial concentration to zero for inhibitor target

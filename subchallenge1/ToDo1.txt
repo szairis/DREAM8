@@ -1,3 +1,0 @@
-- finish the oracle for the real data, possibly submit it again for benchmarking
-
-- implement DBN in pyMC, recover Hill's results
