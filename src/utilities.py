@@ -163,6 +163,22 @@ def score_predictions(pred_course, true_course):
     return rms_error
 
 
+def introduce_inhibs(data, inhib_targets, perfect=True):
+
+    inhibs = inhib_targets.keys()
+
+    inhib_df = data.copy()
+
+    for inhib in inhibs:
+        inhib_col = 'Inhib_{0}'.format(inhib)
+        inhib_df[inhib_col] = 0
+        inhib_df.ix[inhib_df['Inhibitor']==inhib, inhib_col] = 1
+        if perfect:
+            inhib_df.ix[inhib_df['Inhibitor']==inhib,inhib_targets[inhib]] = 0
+
+    return inhib_df
+
+
 def prepare_markov_data(data, response_type, group_stimuli):
     training_dict = {}
 
@@ -170,39 +186,47 @@ def prepare_markov_data(data, response_type, group_stimuli):
     t_max = time_points[-1]
 
     antibodies = data.columns[4:]
+    ab_cols = ['Inhib_' not in col for col in data.columns]
+
     inhibs = set(data['Inhibitor'])
     stims = set(data['Stimulus'])
     num_conditions = len(data.groupby(['Inhibitor', 'Stimulus']).mean())
+    num_antibodies = sum(ab_cols)-4
+
 
     if group_stimuli:
         #we need a training_dict with 1 key: 'all_stimuli'
         if response_type is 'level':
+            # (level, True)
             X = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
-            Y = data[data['Timepoint'] > 0].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
+            Y = data[data['Timepoint'] > 0].ix[:,ab_cols].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
         else:
+            # (rate, True)
             X = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
-            yf = data[data['Timepoint'] > 0].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
-            yb = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
+            yf = data[data['Timepoint'] > 0].ix[:,ab_cols].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
+            yb = data[data['Timepoint'] < t_max].ix[:,ab_cols].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
             tf = time_points[1:]
             tb = time_points[:-1]
-            dt = np.tile((tf-tb)[:, None], (num_conditions, len(antibodies)))
+            dt = np.tile((tf-tb)[:, None], (num_conditions, num_antibodies))
             Y = (yf - yb) / dt
         training_dict['all_stimuli'] = (X, Y)
     else:
         #we need a training_dict with 8 keys: the 8 different stimuli
         if response_type is 'level':
+            # (level, False)
             for stim in stims:
                 X = data[(data['Stimulus']==stim) & (data['Timepoint'] < t_max)].groupby(['Inhibitor', 'Timepoint']).mean().values
-                Y = data[(data['Stimulus']==stim) & (data['Timepoint'] > 0)].groupby(['Inhibitor', 'Timepoint']).mean().values
+                Y = data[(data['Stimulus']==stim) & (data['Timepoint'] > 0)].ix[:,ab_cols].groupby(['Inhibitor', 'Timepoint']).mean().values
                 training_dict[stim] = (X, Y)
         else:
+            # (rate, False)
             for stim in stims:
                 X =  data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().values
-                yf = data[(data['Timepoint'] > 0) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().values
-                yb = data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().values
+                yf = data[(data['Timepoint'] > 0) & (data['Stimulus']==stim)].ix[:,ab_cols].groupby(['Inhibitor', 'Timepoint']).mean().values
+                yb = data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].ix[:,ab_cols].groupby(['Inhibitor', 'Timepoint']).mean().values
                 tf = time_points[1:]
                 tb = time_points[:-1]
-                dt = np.tile((tf-tb)[:, None], (len(set(data[data['Stimulus']==stim]['Inhibitor'])), len(antibodies)))
+                dt = np.tile((tf-tb)[:, None], (len(set(data[data['Stimulus']==stim]['Inhibitor'])), num_antibodies))
                 Y = (yf - yb) / dt
                 training_dict[stim] = (X, Y)
     
