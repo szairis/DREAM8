@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pydot as dot
+import pdb
 
 from copy import deepcopy
 
@@ -214,7 +215,7 @@ def prepare_markov_data(data, response_type, group_stimuli):
     t_min = time_points[0]
     t_max = time_points[-1]
 
-    covariates = data.columns[4:]
+    covariates = [col for col in data.columns if col not in ['Cell Line', 'Inhibitor', 'Stimulus', 'Timepoint']]
     antibodies = [col for col in covariates if 'Inhib_' not in col]
     inhibs = set(data['Inhibitor'])
     stims = set(data['Stimulus'])
