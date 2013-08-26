@@ -1,12 +1,36 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from copy import deepcopy
 import pydot as dot
+
+from copy import deepcopy
+
+
+def plot_adjacency_matrix(A, title=None):
+    '''Plots an adjacency matrix using pcolor. Input should be a dataframe with
+    index and column names corresponding to nodes'''
+    
+    fig = plt.figure()
+
+    plt.pcolor(A)
+    plt.yticks(np.arange(0.5, len(A.index), 1), A.index)
+    plt.xticks(np.arange(0.5, len(A.columns), 1), A.columns, rotation=90)
+    plt.colorbar()
+    plt.xlabel('Child')
+    plt.ylabel('Parent')
+    plt.xlim((0, len(A.index)))
+    plt.ylim((0, len(A.columns)))
+
+    if title is not None:
+        plt.title(title)
+
+    return fig
 
 
 def plot_network(edge_weights_df, int_signs_df, graph_label, threshold):
     '''Generate a graphviz object from input posterior edge probabilities as 
-    provided from the DBN code of Hill.
+    provided from the DBN code of Hill. This is also general enough to work
+    with the output of any other model, just pass the edge_weights in twice.
     
     Inputs:
     edge_weight_df : square dataframe of edge weights
@@ -15,7 +39,8 @@ def plot_network(edge_weights_df, int_signs_df, graph_label, threshold):
     threshold : (float) threshold to use for drawing edges
 
     Output
-    graph : dot object, use Ipython.display.Image(graph) for inline viz
+    graph : dot object, use Ipython.display.Image(graph) for inline viz, or
+            save file using graph.write_pdf(filename) if working in console
     '''
 
     node_list = edge_weights_df.columns
@@ -174,24 +199,28 @@ def introduce_inhibs(data, inhib_targets, perfect=True):
         inhib_df[inhib_col] = 0
         inhib_df.ix[inhib_df['Inhibitor']==inhib, inhib_col] = 1
         if perfect:
-            inhib_df.ix[inhib_df['Inhibitor']==inhib,inhib_targets[inhib]] = 0
+            inhib_df.ix[inhib_df['Inhibitor']==inhib, inhib_targets[inhib]] = 0
 
     return inhib_df
 
 
 def prepare_markov_data(data, response_type, group_stimuli):
+    '''prepare_markov data
+    '''
+
     training_dict = {}
 
     time_points = np.array(np.sort(list(set(data['Timepoint']))))
+    t_min = time_points[0]
     t_max = time_points[-1]
 
-    antibodies = data.columns[4:]
-    ab_cols = ['Inhib_' not in col for col in data.columns]
-
+    covariates = data.columns[4:]
+    antibodies = [col for col in covariates if 'Inhib_' not in col]
     inhibs = set(data['Inhibitor'])
     stims = set(data['Stimulus'])
+
     num_conditions = len(data.groupby(['Inhibitor', 'Stimulus']).mean())
-    num_antibodies = sum(ab_cols)-4
+    num_antibodies = len(antibodies)
 
 
     if group_stimuli:
@@ -199,35 +228,33 @@ def prepare_markov_data(data, response_type, group_stimuli):
         if response_type is 'level':
             # (level, True)
             X = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
-            Y = data[data['Timepoint'] > 0].ix[:,ab_cols].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
+            Y = data[data['Timepoint'] > 0].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix[:, antibodies].values
         else:
             # (rate, True)
             X = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
-            yf = data[data['Timepoint'] > 0].ix[:,ab_cols].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
-            yb = data[data['Timepoint'] < t_max].ix[:,ab_cols].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
+            yf = data[data['Timepoint'] > 0].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix[:, antibodies].values
+            yb = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix[:, antibodies].values
             tf = time_points[1:]
             tb = time_points[:-1]
             dt = np.tile((tf-tb)[:, None], (num_conditions, num_antibodies))
             Y = (yf - yb) / dt
-        training_dict['all_stimuli'] = (X, Y)
+        training_dict['all_stimuli'] = (pd.DataFrame(X, columns=covariates), pd.DataFrame(Y, columns=antibodies))
     else:
         #we need a training_dict with 8 keys: the 8 different stimuli
-        if response_type is 'level':
-            # (level, False)
-            for stim in stims:
+        for stim in stims:
+            if response_type is 'level':
+                # (level, False)
                 X = data[(data['Stimulus']==stim) & (data['Timepoint'] < t_max)].groupby(['Inhibitor', 'Timepoint']).mean().values
-                Y = data[(data['Stimulus']==stim) & (data['Timepoint'] > 0)].ix[:,ab_cols].groupby(['Inhibitor', 'Timepoint']).mean().values
-                training_dict[stim] = (X, Y)
-        else:
-            # (rate, False)
-            for stim in stims:
+                Y = data[(data['Stimulus']==stim) & (data['Timepoint'] > 0)].groupby(['Inhibitor', 'Timepoint']).mean().ix[:, antibodies].values
+            else:
+                # (rate, False)
                 X =  data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().values
-                yf = data[(data['Timepoint'] > 0) & (data['Stimulus']==stim)].ix[:,ab_cols].groupby(['Inhibitor', 'Timepoint']).mean().values
-                yb = data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].ix[:,ab_cols].groupby(['Inhibitor', 'Timepoint']).mean().values
+                yf = data[(data['Timepoint'] > 0) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().ix[:, antibodies].values
+                yb = data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().ix[:, antibodies].values
                 tf = time_points[1:]
                 tb = time_points[:-1]
                 dt = np.tile((tf-tb)[:, None], (len(set(data[data['Stimulus']==stim]['Inhibitor'])), num_antibodies))
                 Y = (yf - yb) / dt
-                training_dict[stim] = (X, Y)
+            training_dict[stim] = (pd.DataFrame(X, columns=covariates), pd.DataFrame(Y, columns=antibodies))
     
     return training_dict
