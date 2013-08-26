@@ -1,4 +1,4 @@
-function [s] = jk(args)
+function [s] = dbn_wrapper(args)
 
     % parse args
     inPath = args.inPath;

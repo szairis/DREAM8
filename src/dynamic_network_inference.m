@@ -167,7 +167,7 @@ if do_EB
 else
     chosen_lambda = lambdas;
     edge_prob_matrix = cell(1,n_datasets);
-    disp(['n_datasets = ' num2str(n_datasets)])
+    %disp(['n_datasets = ' num2str(n_datasets)])
 
     for i=1:n_datasets
         if ~silent
@@ -268,7 +268,7 @@ for i=1:n_models
         end
         
         % log marginal likelihood
-        disp('line 271 logmarglike')
+        %disp('line 271 logmarglike')
         [LL(i,s)  LLpart5 LLpart6] = log_marg_like(X,D(p+s,:)',LLpart1,LLpart2,LLpart3,LLpart4(s),LLpart5,LLpart6);
         
         % prior concordance function f = - (# parents in parent set but not in prior graph)
@@ -363,7 +363,7 @@ if isempty(models)
     Lpr = zeros(n_models,p);
     LL = zeros(n_models,p);
     completeold = 0;
-    disp(['n_models = ' num2str(n_models)])
+    %disp(['n_models = ' num2str(n_models)])
     if ~isempty(prior_graph)
         for i=1:n_models
             model = models{i};
@@ -383,7 +383,7 @@ if isempty(models)
                 end
                     
                 % log marginal likelihood
-                disp('line 385 comp_marg_like')
+                %disp('line 385 comp_marg_like')
                 [LL(i,s) LLpart5 LLpart6] = log_marg_like(X,D(p+s,:)',LLpart1,LLpart2,LLpart3,LLpart4(s),LLpart5,LLpart6);
                 
                 % prior concordance function f = - (# parents in parent set but not in prior graph)
@@ -548,10 +548,10 @@ function [LL A cnt]= log_marg_like(X,Y,LLpart1,LLpart2,LLpart3,LLpart4,A,cnt)
                 cnt = cnt+1;
             end
             if cnt==max_iterations
-                disp('line 554 warning: doing a matrix inverse with pinv!')
-                disp(X)
-                disp(size(A))
-                disp(A)
+                %disp('line 554 warning: doing a matrix inverse with pinv!')
+                %disp(X)
+                %disp(size(A))
+                %disp(A)
                 LL = (-d/2)*LLpart1 + LLpart2*log(LLpart4- LLpart3*Y'*X*pinv(A)*X'*Y);
             end
         end
