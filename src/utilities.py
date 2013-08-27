@@ -10,8 +10,8 @@ from copy import deepcopy
 def plot_adjacency_matrix(A, title=None):
     '''Plots an adjacency matrix using pcolor. Input should be a dataframe with
     index and column names corresponding to nodes'''
-    
-    fig = plt.figure()
+    size = len(A) * 0.5
+    fig = plt.figure(figsize=(size,size))
 
     plt.pcolor(A)
     plt.yticks(np.arange(0.5, len(A.index), 1), A.index)
@@ -24,8 +24,6 @@ def plot_adjacency_matrix(A, title=None):
 
     if title is not None:
         plt.title(title)
-
-    return fig
 
 
 def plot_network(edge_weights_df, int_signs_df, graph_label, threshold):

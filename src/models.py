@@ -26,19 +26,20 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
     # add path check
     inPath = os.path.join('..', 'cache', 'dbn_wrapper_in.mat')
     outPath = os.path.join('..', 'cache', 'dbn_wrapper_out.mat')
+    D = np.transpose(panel.values)
 
     # save the matlab object that the DBN wrapper will load
     # contains all the required parameters for the DBN code
-    savemat(inPath, {'D' : panel,
-                     'max_indegree' : max_indegree,
-                     'prior_graph' : prior_graph,
-                     'lambdas' : lambdas,
-                     'reg_mode' : reg_mode,
-                     'stdise' : stdise,
-                     'silent' : silent})
+    savemat(inPath, {"D" : D,
+                     "max_indegree" : max_indegree,
+                     "prior_graph" : prior_graph,
+                     "lambdas" : lambdas,
+                     "reg_mode" : reg_mode,
+                     "stdise" : stdise,
+                     "silent" : silent})
 
     # DBN wrapper just needs an input and output path
-    args = {'inPath' : inPath, 'outPath' : outPath}
+    args = {"inPath" : inPath, "outPath" : outPath}
 
     # call DBN code
     res = mlab.run_func('dbn_wrapper.m', args, maxtime=maxtime)
@@ -46,8 +47,8 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
     mlab.stop()
 
     out = loadmat(outPath)
-    edge_prob = pd.DataFrame(out['e'], index=panel.minor_axis, columns=panel.minor_axis)
-    edge_sign = pd.DataFrame(out['i'], index=panel.minor_axis, columns=panel.minor_axis)
+    edge_prob = pd.DataFrame(out['e'], index=panel.columns, columns=panel.columns)
+    edge_sign = pd.DataFrame(out['i'], index=panel.columns, columns=panel.columns)
 
     return (edge_prob, edge_sign)
 
@@ -130,11 +131,11 @@ def network_lasso(data, response_type='level', ground_truth=None, inhib_targets=
             print col
             # check if col is not all the identical
             if len(set(Y[col])) > 1:
-                rgn = linear_model.LassoCV(verbose=True).fit(X, Y[col])
+                rgn = linear_model.LassoCV(verbose=False).fit(X, Y[col])
                 if np.max(rgn.coef_) != 0:
                     A[key].ix[:,col] = np.abs(rgn.coef_) / np.abs(rgn.coef_).max()
             else:
-                A[key].ix[:,col] = np.zeros((X.shape[1], 1))
+                A[key].ix[:,col] = np.zeros((X.shape[1],))
 
     if ground_truth:
         auc = {}
