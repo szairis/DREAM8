@@ -27,6 +27,9 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
     inPath = os.path.join('..', 'cache', 'dbn_wrapper_in.mat')
     outPath = os.path.join('..', 'cache', 'dbn_wrapper_out.mat')
     D = np.transpose(panel.values)
+    num_rows = np.shape(D)[0]
+    num_cols = np.shape(D)[1]
+    D = np.reshape(D, (num_rows, num_cols, 1))
 
     # save the matlab object that the DBN wrapper will load
     # contains all the required parameters for the DBN code
@@ -115,7 +118,7 @@ def network_lasso(data, response_type='level', ground_truth=None, inhib_targets=
     else:
         training_dict = prepare_markov_data(data, response_type, group_stimuli)
 
-    antibodies = [col for col in data.columns if col not in ['Cell Line', 'Inhibitor', 'Stimuus', 'Timepoint']]
+    antibodies = [col for col in data.columns if col not in ['Cell Line', 'Inhibitor', 'Stimulus', 'Timepoint']]
     stims = set(data['Stimulus'])
 
     # fit lasso for each (X,Y) pair
@@ -128,7 +131,7 @@ def network_lasso(data, response_type='level', ground_truth=None, inhib_targets=
         A[key] = pd.DataFrame(np.zeros((X.shape[1], X.shape[1])), columns=X.columns, index=X.columns)
 
         for col in Y.columns:
-            print col
+            #print col
             # check if col is not all the identical
             if len(set(Y[col])) > 1:
                 rgn = linear_model.LassoCV(verbose=False).fit(X, Y[col])
