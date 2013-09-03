@@ -122,9 +122,6 @@ def gen_cantone(time_points, snr_cell=10, snr_meas=10, mod_S=30):
     return A, dat
 
 
-
-
-
 def gen_xu(time_points, snr_meas=None, EGF=0, Gap=2400, Cilostamide=0, EPACA=0, PKAA=0):
     '''generate data from xu model
 

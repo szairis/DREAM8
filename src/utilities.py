@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import pydot as dot
 import pdb
-
 from copy import deepcopy
 
 
@@ -156,11 +155,6 @@ def score_network(Adj, Adj_true):
     for k in range(n**2 + 1):
         thresh = float(k) / float(n**2)
         inferred = im2bw(A, thresh)
-#        print 'THRESHOLD: ' + str(thresh)
-#        print 'INFERRED:'
-#        print inferred
-#        print 'TRUTH:'
-#        print A_true
         true_pos = np.logical_and(inferred, A_true).astype('float')
         false_pos = inferred - true_pos
         true_neg = np.logical_not(np.logical_or(inferred, A_true)).astype('float')
@@ -169,14 +163,9 @@ def score_network(Adj, Adj_true):
         fp[k] = np.sum(false_pos)
         tn[k] = np.sum(true_neg)
         fn[k] = np.sum(false_neg)
-#        print 'TP: {0}, FP: {1}, FN: {2}, TN: {3}'.format(tp[k], fp[k], fn[k], tn[k])
-#        print 'FPR: {0}, TPR: {1}'.format(fp[k] / (fp[k] + tn[k]), tp[k] / (tp[k] + fn[k]))
-#        print '-------------------------------------------'
         
     fpr = fp / (tn + fp)
     tpr = tp / (tp + fn)
-#    plot(fpr, tpr)
-#    show()
     auc = np.trapz(tpr[::-1], fpr[::-1])
     return auc
 
