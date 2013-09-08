@@ -59,7 +59,8 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
     '''does gbr on design matrix.
     returns dict regGBR, one GBR for each column in the target (Y) matrix
 
-    do this and then do network_gbr, which will give you the a-matrix from the feature importances
+    do this and then do do_gbr_build_adj_matrix, which will give you the A-matrix from the feature importances
+
     '''
     regGBR = {}
 
@@ -79,7 +80,8 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
         
     return regGBR
 
-def build_adj_matrix(regGBR, node_list, stims):   
+
+def do_gbr_build_adj_matrix(regGBR, node_list, stims):   
     '''take as input the regGBR object, build an adjacency matrix out of each stimulus
     '''
     num_nodes = len(node_list)
@@ -91,6 +93,7 @@ def build_adj_matrix(regGBR, node_list, stims):
         adj_dict[stim] = pd.DataFrame(adj, index=node_list, columns=node_list)
         
     return adj_dict
+
 
 def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
     '''takes a regGBR object (output of do_GBR)
@@ -107,7 +110,6 @@ def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
     num_inhibs = len(inhibs)
 
     pred_dict = {}
-
 
     for test_inhib in node_list:
         print test_inhib
@@ -148,7 +150,10 @@ def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
 
     return pred_dict
 
+
 def network_gbr_cv(X, Y, verbose=False, n_estimators=100, learning_rate=0.1, max_depth=5):
+    '''this is just dumped in here. does gbr with cv
+    '''
     
     n_folds = 5
     kf = list(cross_validation.KFold(X.shape[0], n_folds=n_folds, shuffle=True))
