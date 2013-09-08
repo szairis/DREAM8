@@ -55,49 +55,138 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
 
     return (edge_prob, edge_sign)
 
+def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False):
+    '''does gbr on design matrix.
+    returns dict regGBR, one GBR for each column in the target (Y) matrix
 
-def gbr(data, n_estimators=300, max_depth=3, learning_rate=0.1, inhib_targets=None, perfect=True):
+    do this and then do network_gbr, which will give you the a-matrix from the feature importances
     '''
-    run gradient boosting regression on design matrix.
-    
-    Input:
-        data
-        design: TxN design matrix. should be a pandas dataframe with each network node
-        as a column, and measured time points as rows.
-        response: TxN response matrix. should be a pandas dataframe with each network node
-        as a column, and each response variable as a row.
+    regGBR = {}
 
-    Output
-        Feature weights???
-        Fit object???
-    
+    for target in Y.columns:
+        
+        if verbose:
+            print target
+        
+        # get target values
+        y = Y[target].values
+        
+        regGBR[target] = GradientBoostingRegressor(n_estimators=n_estimators,
+                                                   learning_rate=learning_rate,
+                                                   max_depth=max_depth,
+                                                   loss='ls')
+        regGBR[target].fit(X, y)
+        
+    return regGBR
+
+def build_adj_matrix(regGBR, node_list, stims):   
+    '''take as input the regGBR object, build an adjacency matrix out of each stimulus
     '''
-    from sklearn.ensemble import GradientBoostingRegressor
-    
-    # model interventions if supplied an inhib_targets dict
-    if inhib_targets:
-        training_dict = prepare_markov_data(introduce_inhibs(data, inhib_targets=inhib_targets, perfect=perfect), response_type, group_stimuli)
-    else:
-        training_dict = prepare_markov_data(data, response_type, group_stimuli)
+    num_nodes = len(node_list)
+    adj_dict = {}
+    for stim in stims:
+        adj = np.zeros((num_nodes, num_nodes), dtype='f')
+        for nidx, node in enumerate(node_list):
+            adj[:, nidx] = regGBR[stim][node].feature_importances_[:num_nodes]
+        adj_dict[stim] = pd.DataFrame(adj, index=node_list, columns=node_list)
+        
+    return adj_dict
 
-    nodes = design.columns
+def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
+    '''takes a regGBR object (output of do_GBR)
+    and predicts timeseries for inhibited nodes
 
-    for target in nodes:
-        regGBR[target] = {}
+    you supply the normalization scalar, original data, list of stimulii,
+    list of inhibitors present in data, and prediction timepoints
+
+    returns pred_dict, after which you would generally call write_midas, looping
+    over the node_list
+    '''
+
+
+    num_inhibs = len(inhibs)
+
+    pred_dict = {}
+
+
+    for test_inhib in node_list:
+        print test_inhib
+        pred_dict[test_inhib] = {}
         for stim in stims:
-            y = response[(response['Timepoint']>0) & (response['Stimulus']==stim)] \
-                .groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean()[target].values
+            print stim
+            # set up new df to use, and fill t=0 values
+            pred_df = pd.DataFrame(np.zeros((len(times), len(node_list))), index=times, columns=node_list)
+            pred_df.ix[0, :] = data.groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix['None', stim, 0]
+            pred_df.ix[0, test_inhib] = 0
             
-            regGBR[target][stim] = GradientBoostingRegressor(n_estimators=n_estimators,
-                                                             learning_rate=learning_rate,
-                                                             max_depth=max_depth,
-                                                             loss='ls')
+            # loop over times
+            for tidx in range(1,len(times)):
+                time = times[tidx]
+                
+                # get covariates for this time step and scale
+                # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
+                covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalar.mean_[:-num_inhibs]) / scalar.std_[:-num_inhibs]
 
-            regGBR[target][stim].fit(X, y)
+                # zero out covariate we are inhibiting
+                try:
+                    covariates_df.ix[test_inhib_targets[test_inhib]] = 0
+                except:
+                    pass
+                
+                num_cov = len(pred_df.columns)
+                covariates = np.zeros((num_cov + num_inhibs,))
+                covariates[:num_cov] = covariates_df.values
 
+                # loop over proteins to get values for current time step
+                for p in node_list:
+                    pred_df.ix[time, p] = insilico_regGBR[p].predict(covariates)
+                
+                # zero out covariate we are inhibiting, again
+                pred_df.ix[time, test_inhib] = 0
+        
+            pred_dict[test_inhib][stim] = pred_df
 
+    return pred_dict
 
-    return 0
+def network_gbr_cv(X, Y, verbose=False, n_estimators=100, learning_rate=0.1, max_depth=5):
+    
+    n_folds = 5
+    kf = list(cross_validation.KFold(X.shape[0], n_folds=n_folds, shuffle=True))
+    
+    regGBR = {}
+    test_score = {}
+
+    for target in Y.columns:
+        
+        if verbose:
+            print target
+        
+        # get target values
+        y = Y[target].values
+        
+        regGBR[target] = []
+        test_score[target] = []
+        
+        for fold in range(n_folds):
+            if verbose:
+                print 'cv fold ', fold
+            X_train, y_train = X.ix[kf[fold][0],:], y[kf[fold][0]]
+            X_test, y_test = X.ix[kf[fold][1],:], y[kf[fold][1]]
+        
+            regGBR[target].append(GradientBoostingRegressor(n_estimators=n_estimators,
+                                                            learning_rate=learning_rate,
+                                                            max_depth=max_depth,
+                                                            loss='ls'))
+            regGBR[target][fold].fit(X_train, y_train)
+        
+            test_score[target].append(np.zeros((n_estimators,), dtype=np.float64))
+            
+            for i, y_pred in enumerate(regGBR[target][fold].staged_decision_function(X_test)):
+                test_score[target][fold][i] = regGBR[target][fold].loss_(y_test, y_pred)
+        
+        #mse = mean_squared_error(y_test, regGBR[target].predict(logB_test))
+        
+    return regGBR, test_score
 
 
 def network_lasso(data, response_type='level', ground_truth=None, inhib_targets=None, perfect=True, group_stimuli=False):
