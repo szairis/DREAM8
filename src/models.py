@@ -26,10 +26,14 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
     # add path check
     inPath = os.path.join('..', 'cache', 'dbn_wrapper_in.mat')
     outPath = os.path.join('..', 'cache', 'dbn_wrapper_out.mat')
+    
     D = np.transpose(panel.values)
     num_rows = np.shape(D)[0]
     num_cols = np.shape(D)[1]
     D = np.reshape(D, (num_rows, num_cols, 1))
+    
+    #D = np.transpose(panel, (2,1,0))
+    
 
     # save the matlab object that the DBN wrapper will load
     # contains all the required parameters for the DBN code
@@ -50,8 +54,12 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
     mlab.stop()
 
     out = loadmat(outPath)
+    
     edge_prob = pd.DataFrame(out['e'], index=panel.columns, columns=panel.columns)
     edge_sign = pd.DataFrame(out['i'], index=panel.columns, columns=panel.columns)
+    
+    #edge_prob = out['e']
+    #edge_sign = out['i']
 
     return (edge_prob, edge_sign)
 
