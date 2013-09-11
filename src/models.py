@@ -62,6 +62,9 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
     do this and then do do_gbr_build_adj_matrix, which will give you the A-matrix from the feature importances
 
     '''
+    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.preprocessing import Imputer
+
     regGBR = {}
 
     for target in Y.columns:
@@ -95,31 +98,43 @@ def do_gbr_build_adj_matrix(regGBR, node_list, stims):
     return adj_dict
 
 
-def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
+def timeseries_gbr(regGBR, scaler, scaler_cols, data, node_list, stims, inhibs, cov_columns, times, test_inhib_targets, dataset='experimental'):
     '''takes a regGBR object (output of do_GBR)
     and predicts timeseries for inhibited nodes
 
     you supply the normalization scalar, original data, list of stimulii,
     list of inhibitors present in data, and prediction timepoints
 
+    inhibitors should be an empty list if you chose not to model inhibition
+
     returns pred_dict, after which you would generally call write_midas, looping
     over the node_list
     '''
 
+    if dataset is 'experimental':
+        control_inhib = 'DMSO'
+    elif dataset is 'insilico':
+        control_inhib = 'None'
 
     num_inhibs = len(inhibs)
+    if num_inhibs > 0:
+        has_inhibs = True
+    else:
+        has_inhibs = False
+
+
+    num_cov = len(cov_columns)
 
     pred_dict = {}
 
-    for test_inhib in node_list:
+    for test_inhib in test_inhib_targets:
         print test_inhib
         pred_dict[test_inhib] = {}
         for stim in stims:
-            print stim
             # set up new df to use, and fill t=0 values
-            pred_df = pd.DataFrame(np.zeros((len(times), len(node_list))), index=times, columns=node_list)
-            pred_df.ix[0, :] = data.groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix['None', stim, 0]
-            pred_df.ix[0, test_inhib] = 0
+            pred_df = pd.DataFrame(np.zeros((len(times), num_cov)), index=times, columns=cov_columns)
+            pred_df.ix[0, scaler_cols] = data.groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix[control_inhib, stim, 0]
+            pred_df.ix[0, test_inhib_targets[test_inhib]] = 0
             
             # loop over times
             for tidx in range(1,len(times)):
@@ -127,7 +142,7 @@ def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
                 
                 # get covariates for this time step and scale
                 # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
-                covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalar.mean_[:-num_inhibs]) / scalar.std_[:-num_inhibs]
+                covariates_df = ((pred_df.ix[times[tidx-1], :]) - scaler.mean_) / scaler.std_
 
                 # zero out covariate we are inhibiting
                 try:
@@ -135,18 +150,18 @@ def timeseries_gbr(regGBR, scalar, data, node_list, stims, inhibs, times):
                 except:
                     pass
                 
-                num_cov = len(pred_df.columns)
-                covariates = np.zeros((num_cov + num_inhibs,))
-                covariates[:num_cov] = covariates_df.values
+                covariates = np.zeros((num_cov,))
+                covariates[:] = covariates_df.values
 
                 # loop over proteins to get values for current time step
                 for p in node_list:
-                    pred_df.ix[time, p] = insilico_regGBR[p].predict(covariates)
+                    pred_df.ix[time, p] = regGBR[p].predict(covariates)
                 
                 # zero out covariate we are inhibiting, again
-                pred_df.ix[time, test_inhib] = 0
+                pred_df.ix[time, test_inhib_targets[test_inhib]] = 0
         
-            pred_dict[test_inhib][stim] = pred_df
+            # add the pred_df to the dict, keeping only the appropriate columns
+            pred_dict[test_inhib][stim] = pred_df.ix[:, scaler_cols]
 
     return pred_dict
 
