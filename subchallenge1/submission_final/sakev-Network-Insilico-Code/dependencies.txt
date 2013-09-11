@@ -1,0 +1,10 @@
+MATLAB R---- or higher
+
+Python 2.7.x
+    numpy
+    scipy
+    scikit-learn
+    matplotlib
+    pydot
+    pymatbridge
+
