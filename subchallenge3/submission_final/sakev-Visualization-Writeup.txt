@@ -1,1 +1,38 @@
-make the picture come alive
+There are 4 components to this visualization scheme:
+    1. drop-down menus for stimulus and inhibitor conditions
+    2. dynamic correlation plot
+    3. time series plot
+    4. track windowing/control bar
+
+
+1.
+The user may select a particular value for the stimulus or inhibitor, or may elect to not define a
+value from the drop-down menus.  If no value is indicated then the visualization will average over that
+dimension in the data set.
+
+
+2.
+In this visualization each antibody, or node in the network, is statically positioned along a large circle
+on the canvas.  The signal level for a particular antibody is represented by dynamically growing or shrinking
+the size of a shaded circle centered upon its assigned initial position.  All antibody levels are re-scaled by their
+mean level over the time series, and this mean is used as the radius for each antibody's dashed circle.  Having this
+dashed circle always visible provides a frame of reference as the shaded circle grows/shrinks along the specified
+time window.
+
+To assist the human eye in detecting patterns between the antibody levels as they dynamically grow and shrink,
+we shade in chords of the larger circle to reprsent strength/sign of correlation.  Positive/negative correlation
+are encoded with blue/red respectively, and the shading thickness of the chords encode the magnitude of the correlation.
+
+
+3.
+When the user's mouse is moved into the shaded circle for a particular antibody, the plotting area will display time
+series curves for that antibody.  Only the time points within the specified time window will be plotted and a separate
+curve will be drawn for each (stimulus, inhibitor) pair.  In the mockup we see that the user specified EGF as stimulus
+and all inhibitors (no selection from inhibitor menu).  Thus we plot different curves for each value of the inhibitor in the 
+data set.
+
+
+4.
+The user can crop the series by adjusting the window start/stop brackets.  When the play button is pressed the
+visualization will loop continuously over the specified time window.  The visualiztion may be paused at any
+time slice by pressing the pause button.

@@ -2,4 +2,9 @@
 *.mat
 .DS_Store
 cache/*
-zz/*
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.synctex.gz
