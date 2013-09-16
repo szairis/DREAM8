@@ -1,10 +1,7 @@
-MATLAB R---- or higher
-
 Python 2.7.x
     numpy
+    pandas
     scipy
-    scikit-learn
     matplotlib
+    scikit-learn
     pydot
-    pymatbridge
-
