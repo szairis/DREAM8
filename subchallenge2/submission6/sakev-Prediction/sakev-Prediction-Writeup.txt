@@ -1,0 +1,2 @@
+Train using Gradient Boosting Regression. Stack on cell lines and pool across
+inhibitors, no distinction in stimulus.
