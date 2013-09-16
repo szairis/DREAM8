@@ -1,0 +1,113 @@
+\documentclass[letterpaper, 11pt]{article}
+\usepackage{helvet}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{datetime}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{amsfonts}
+\usepackage{authblk}
+\pagestyle{plain}
+\pagenumbering{arabic}
+\bibliographystyle{plain}
+
+\title{Test Inhibitor Time Course Inference\\Using Gradient Boosted Decision Trees}
+
+\author[1]{Kevin Emmett\thanks{kje2109@columbia.edu}}
+\author[2]{Sakellarios Zairis\thanks{siz2102@columbia.edu}}
+\affil[1]{Department of Physics, Columbia University}
+\affil[2]{Department of Computational Biology \& Bioinformatics, Columbia University}
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+1 sentence summary goes here
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methods}
+
+\subsection{Relation to Subchallenge 1}
+
+We do not make explicit use of the network edges inferred in subchallenge 1, though the network structure is still latent within our trained gradient boosted trees.
+
+\subsection{Background}
+ 
+\begin{enumerate}
+\item given training set $(x_1,y_1), ..., (x_m,y_m)$ where $y_i \in \{-1,+1\}, x_i \in X$
+\item construct distribution $D_t$ on $\{1, ..., m\}$ and initialize $D_1(i) = \frac{1}{m}$
+\item for $t = 1, ..., T$:
+\begin{itemize}
+\item select a weak rule $h_t : X \mapsto \{-1,+1\}$ with small error $\epsilon_t$ on $D_t$
+\item $\alpha_t = \frac{1}{2} \log \frac{1 - \epsilon_t}{\epsilon_t}$
+\item $D_{t+1}(i) = \frac{D_t(i)}{Z_t} \exp (-\alpha_t y_i h_t(x_i))$
+\end{itemize}
+\item final classifier $H(x) = sign( \sum_t \alpha_t h_t(x) )$
+\end{enumerate}
+
+The salient features of this algorithm are (a) it builds a strong classifier from an ensemble of weaker ones, (b) it re-weights the training data at each iteration to emphasize hitherto incorrectly classified examples, and (c) the final classifier provides not only the $sign$ but also its margin, or distance from zero, as a measure of confidence in the prediction.
+
+\subsection{Implementation}
+
+python, sklearn
+
+\subsection{Parameter Tuning}
+
+say something
+
+\subsection{Inhibitor/Stimulus Modeling}
+
+introduce inhibs
+
+\subsection{Biological prior differentiated 1A from 1B}
+
+talk about literature mining
+
+\subsection{Any other approaches considered?}
+
+DBN, Lasso, Genetic Algos
+
+\subsection{Computational Resources}
+
+make up some numbers
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data Preparation}
+
+\subsection{Main vs. Full Data}
+
+we used main
+
+\subsection{Preprocessing}
+
+prepare markov data
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{External Information}
+
+talk about mining the literature
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Model Validation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Leader Board}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Author Backgrounds and Statements}
+
+Kevin Emmett is a PhD student in physics with a background in discriminative modeling of influenza pandemics as well as generative modeling of nanopore sequencing technologies.  Sakellarios Zairis is an MD/PhD student with a background in applying supervised learning techniques to predicting viral oncogenic potential.  These authors contributed equally to the work, with an average weekly time commitment of 15 hours.
+
+\bibliography{DREAM8}
+
+\end{document}
