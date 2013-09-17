@@ -5,8 +5,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn import preprocessing
 import utilities
 
-### FUNCTIONS
-
+# function which fits ensembles of gradient boosted trees to training data (X, Y)
 def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False):
 
     regGBR = {}
@@ -27,10 +26,11 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
         
     return regGBR
 
+# create the results directory if it does no already exist
 if not os.path.exists('./results'):
     os.makedirs('./results')
 
-# load data
+# load in the insilico data
 insilico_data = pd.read_csv('data/insilico.csv', header=0)
 inhibs = set(insilico_data['Inhibitor'])
 stims = set(insilico_data['Stimulus'])

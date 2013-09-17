@@ -5,7 +5,7 @@ import utilities
 from sklearn import preprocessing
 from sklearn.ensemble import GradientBoostingRegressor
 
-
+# function which builds the adjacency matrix from the feature rankings
 def build_adj_matrix(regGBR, node_list, stims):   
     num_nodes = len(node_list)
     adj_dict = {}
@@ -17,7 +17,7 @@ def build_adj_matrix(regGBR, node_list, stims):
         
     return adj_dict
 
-
+# function which fits ensembles of gradient boosted trees to training data (X, Y)
 def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False):
 
     regGBR = {}
@@ -38,9 +38,11 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
         
     return regGBR
 
+# create the results directory if it does no already exist
 if not os.path.exists('./results'):
     os.makedirs('./results')
 
+# load in the insilico data
 insilico_data = pd.read_csv('data/insilico.csv', header=0)
 inhibs = set(insilico_data['Inhibitor'])
 stims = set(insilico_data['Stimulus'])

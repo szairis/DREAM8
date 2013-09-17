@@ -5,7 +5,7 @@ import utilities
 from sklearn import preprocessing
 from sklearn.ensemble import GradientBoostingRegressor
 
-
+# function which builds the adjacency matrix from the feature rankings
 def build_adj_matrix(regGBR, node_list, stims):   
     num_nodes = len(node_list)
     adj_dict = {}
@@ -17,7 +17,7 @@ def build_adj_matrix(regGBR, node_list, stims):
         
     return adj_dict
 
-
+# function which fits ensembles of gradient boosted trees to training data (X, Y)
 def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False):
 
     regGBR = {}
@@ -38,14 +38,17 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
         
     return regGBR
 
+# create the results directory if it does no already exist
 if not os.path.exists('./results'):
     os.makedirs('./results')
 
+# load in the 4 cell lines of experimental data
 bt20 = pd.read_csv('data/BT20_main.csv')
 bt549 = pd.read_csv('data/BT549_main.csv')
 mcf7 = pd.read_csv('data/MCF7_main.csv')
 uacc812 = pd.read_csv('data/UACC812_main.csv')
 
+# load in the network prior curated from the literature
 prior = pd.read_csv('data/experimental_prior.csv', index_col=0, header=0)
 
 ## BT20
