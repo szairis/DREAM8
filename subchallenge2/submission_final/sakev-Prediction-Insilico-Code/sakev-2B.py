@@ -59,7 +59,6 @@ for stim in stims:
     max_depth = 3
 
     regGBR[stim] = do_gbr(X, Y, n_estimators=n_estimators, max_depth=max_depth)
-    #plot_regGBR(X, regGBR, test_score, n_estimators=n_estimators)
 
 
 # predict
@@ -80,7 +79,6 @@ for test_inhib in node_list:
             time = times[tidx]
             
             # get covariates for this time step and scale
-            # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
             covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalarblah.mean_[:-3]) / scalarblah.std_[:-3]
 
             # zero out covariate we are inhibiting

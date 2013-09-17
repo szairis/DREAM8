@@ -84,7 +84,6 @@ for test_inhib in test_inhib_targets:
             time = times[tidx]
             
             # get covariates for this time step and scale
-            # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
             covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalarblah.mean_[:-2]) / scalarblah.std_[:-2]
 
             # zero out covariate we are inhibiting
@@ -163,7 +162,6 @@ for test_inhib in test_inhib_targets:
             time = times[tidx]
             
             # get covariates for this time step and scale
-            # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
             covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalarblah.mean_[:-2]) / scalarblah.std_[:-2]
 
             # zero out covariate we are inhibiting
@@ -242,7 +240,6 @@ for test_inhib in test_inhib_targets:
             time = times[tidx]
             
             # get covariates for this time step and scale
-            # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
             covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalarblah.mean_[:-2]) / scalarblah.std_[:-2]
 
             # zero out covariate we are inhibiting
@@ -321,7 +318,6 @@ for test_inhib in test_inhib_targets:
             time = times[tidx]
             
             # get covariates for this time step and scale
-            # covariates_df = scaler.transform(pred_df.ix[times[tidx-1], :])
             covariates_df = ((pred_df.ix[times[tidx-1], :]) - scalarblah.mean_[:-2]) / scalarblah.std_[:-2]
 
             # zero out covariate we are inhibiting
