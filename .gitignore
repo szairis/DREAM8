@@ -8,3 +8,4 @@ cache/*
 *.dvi
 *.log
 *.synctex.gz
+*.out
