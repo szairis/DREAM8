@@ -1,9 +1,9 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pydot as dot
 import pdb
 from copy import deepcopy
+import matplotlib.pyplot as plt
 
 
 def plot_adjacency_matrix(A, title=None):
@@ -192,7 +192,7 @@ def introduce_inhibs(data, inhib_targets, perfect=True):
     return inhib_df
 
 
-def prepare_markov_data(data, response_type, group_stimuli):
+def prepare_markov_data(data, response_type='level', group_stimuli=False):
     '''prepare_markov data
     '''
 
@@ -217,7 +217,7 @@ def prepare_markov_data(data, response_type, group_stimuli):
             # (level, True)
             X = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
             Y = data[data['Timepoint'] > 0].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix[:, antibodies].values
-        else:
+        elif response_type is 'rate':
             # (rate, True)
             X = data[data['Timepoint'] < t_max].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().values
             yf = data[data['Timepoint'] > 0].groupby(['Inhibitor', 'Stimulus', 'Timepoint']).mean().ix[:, antibodies].values
@@ -234,7 +234,7 @@ def prepare_markov_data(data, response_type, group_stimuli):
                 # (level, False)
                 X = data[(data['Stimulus']==stim) & (data['Timepoint'] < t_max)].groupby(['Inhibitor', 'Timepoint']).mean().values
                 Y = data[(data['Stimulus']==stim) & (data['Timepoint'] > 0)].groupby(['Inhibitor', 'Timepoint']).mean().ix[:, antibodies].values
-            else:
+            elif response_type is 'rate':
                 # (rate, False)
                 X =  data[(data['Timepoint'] < t_max) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().values
                 yf = data[(data['Timepoint'] > 0) & (data['Stimulus']==stim)].groupby(['Inhibitor', 'Timepoint']).mean().ix[:, antibodies].values
@@ -250,6 +250,7 @@ def prepare_markov_data(data, response_type, group_stimuli):
 def plot_regGBR(X, regGBR, n_estimators=100):
     ''' make those nifty side-by-side plots of feature importance and train set loss.
     '''
+    import os
 
     fig = {}
     for target in regGBR:
@@ -257,7 +258,8 @@ def plot_regGBR(X, regGBR, n_estimators=100):
         train_set_score = regGBR[target].train_score_
     
         #plot training deviance
-        fig[target] = plt.figure(figsize=(16,18))
+        #fig[target] = plt.figure(figsize=(10, 8))
+        fig[target] = plt.figure()
         plt.subplot(1, 2, 1)
         plt.title('{0} Deviance'.format(target))
         
@@ -266,7 +268,7 @@ def plot_regGBR(X, regGBR, n_estimators=100):
         plt.xlabel('Boosting Iterations')
         plt.ylabel('Deviance')
         
-        # Plot feature importants
+        # Plot feature importance
         
         feature_scores = regGBR[target].feature_importances_
         
@@ -280,58 +282,68 @@ def plot_regGBR(X, regGBR, n_estimators=100):
         plt.xlabel('Relative Importance')
         plt.title('{0} Variable Importance'.format(target))
     
-        #fig.savefig(os.path.join(project_path, 'fig', 'gbr_model', '{0}_gbr_performance_take2.pdf'.format(target)), format='pdf')
-        #plt.close()
+        plt.close()
+
     return fig
 
 
-def plot_regGBR_cv(X, regGBR, test_score, n_estimators=100):
+def plot_regGBR_cv(X, regGBR, test_score, target, n_folds=5, n_estimators=100):
     '''return a dict of figures, one for each node
     '''
-    fig = {}
-    for target in regGBR:
+    import os
     
-        test_set_scores = np.zeros((n_folds, n_estimators))
-        train_set_scores = np.zeros((n_folds, n_estimators))
-        for i in range(n_folds):
-            test_set_scores[i,:] = test_score[target][i]
-            train_set_scores[i, :] = regGBR[target][i].train_score_
-        
-        mean_test_set_deviance = test_set_scores.mean(axis=0)
-        mean_train_set_deviance = train_set_scores.mean(axis=0)
-        std_test_set_deviance = test_set_scores.std(axis=0)
-        std_train_set_deviance = train_set_scores.std(axis=0)
+    test_set_scores = np.zeros((n_folds, n_estimators))
+    train_set_scores = np.zeros((n_folds, n_estimators))
+    for i in range(n_folds):
+        test_set_scores[i,:] = test_score[i]
+        train_set_scores[i, :] = regGBR[i].train_score_
     
-        #plot training deviance
-        fig[target] = plt.figure(figsize=(16,18))
-        plt.subplot(1, 2, 1)
-        plt.title('{0} Deviance'.format(target))
-        
-        plt.errorbar(np.arange(n_estimators) + 1, mean_train_set_deviance,
-                     yerr=std_train_set_deviance, fmt='b-', label='Training Set Deviance')
-        plt.errorbar(np.arange(n_estimators) + 1, mean_test_set_deviance,
-                     yerr=std_test_set_deviance, fmt='r-', label='Test Set Deviance')
-        plt.legend(loc='upper right')
-        plt.xlabel('Boosting Iterations')
-        plt.ylabel('Deviance')
-        
-        # Plot feature importants
-        
-        feature_scores = np.zeros((n_folds, len(regGBR[target][0].feature_importances_)))
-        for i in range(n_folds):
-            feature_importance = regGBR[target][i].feature_importances_
-            feature_scores[i, :] = 100.0 * (feature_importance / feature_importance.max())
-        mean_feature_importance = feature_scores.mean(axis=0)
-        std_feature_importance = feature_scores.std(axis=0)
-        
-        # make importances relative to max importance
-    
-        sorted_idx = np.argsort(mean_feature_importance)
-        pos = np.arange(sorted_idx.shape[0]) + .5
-        plt.subplot(1, 2, 2)
-        plt.barh(pos, mean_feature_importance[sorted_idx], align='center', xerr=std_feature_importance[sorted_idx])
-        plt.yticks(pos, X.columns[sorted_idx])
-        plt.xlabel('Relative Importance')
-        plt.title('{0} Variable Importance'.format(target))
+    mean_test_set_deviance = test_set_scores.mean(axis=0)
+    mean_train_set_deviance = train_set_scores.mean(axis=0)
+    std_test_set_deviance = test_set_scores.std(axis=0)
+    std_train_set_deviance = train_set_scores.std(axis=0)
 
+    # plot training deviance
+    fig = plt.figure(figsize=(14,8))
+    plt.subplot(1, 2, 1)
+    plt.title('{0} Deviance'.format(target))
+    
+    plt.errorbar(np.arange(n_estimators) + 1, mean_train_set_deviance,
+                 yerr=std_train_set_deviance, fmt='b-', label='Training Set Deviance')
+    plt.errorbar(np.arange(n_estimators) + 1, mean_test_set_deviance,
+                 yerr=std_test_set_deviance, fmt='r-', label='Test Set Deviance')
+    plt.legend(loc='upper right')
+    plt.xlim((0, n_estimators))
+    plt.xlabel('Boosting Iterations')
+    plt.ylabel('Deviance')
+    
+    # plot feature importance
+    
+    feature_scores = np.zeros((n_folds, len(regGBR[0].feature_importances_)))
+    for i in range(n_folds):
+        feature_importance = regGBR[i].feature_importances_
+        feature_scores[i, :] = 100.0 * (feature_importance / feature_importance.max())
+    mean_feature_importance = feature_scores.mean(axis=0)
+    std_feature_importance = feature_scores.std(axis=0)
+    
+    # make importances relative to max importance
+
+    sorted_idx = np.argsort(mean_feature_importance)[-10:]
+    pos = np.arange(sorted_idx.shape[0]) + .5
+    plt.subplot(1, 2, 2)
+    plt.barh(pos, mean_feature_importance[sorted_idx], align='center')
+
+    yticks_labels = X.columns[sorted_idx].values
+    for idx, label in enumerate(yticks_labels):
+        if label == 'Inhib_GSK690693_GSK1120212':
+            yticks_labels[idx] = 'AKT,MEK Inhibitor'
+            print 'hit!'
+
+    plt.yticks(pos, yticks_labels)
+    plt.xlabel('Relative Importance')
+    plt.ylim((33,43))
+    plt.title('{0} Variable Importance'.format(target))
+    plt.subplots_adjust(wspace=.4)
+
+    plt.close()
     return fig

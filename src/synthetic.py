@@ -122,7 +122,7 @@ def gen_cantone(time_points, snr_cell=10, snr_meas=10, mod_S=30):
     return A, dat
 
 
-def gen_xu(time_points, snr_meas=None, EGF=0, Gap=2400, Cilostamide=0, EPACA=0, PKAA=0):
+def gen_xu(t_max, snr_meas=None, EGF=0, Gap=2400, Cilostamide=0, EPACA=0, PKAA=0):
     '''generate data from xu model
 
     Inputs:
@@ -382,8 +382,6 @@ def gen_xu(time_points, snr_meas=None, EGF=0, Gap=2400, Cilostamide=0, EPACA=0, 
           activeRap10, inactiveRap10,
           Gap, Cilostamide, EPACA, PKAA]
     
-    time_points = np.array(time_points)
-    t_max = np.max(time_points)
     t_range = np.arange(0, t_max * 60 + 1, 1)
     soln = pd.DataFrame(odeint(f, y0, t_range), index=t_range, columns=nodes)
     
@@ -391,13 +389,14 @@ def gen_xu(time_points, snr_meas=None, EGF=0, Gap=2400, Cilostamide=0, EPACA=0, 
     if snr_meas:
         noise = soln.mean(axis=0) / snr_meas
         for tidx, time in enumerate(t_range):
-            soln.ix[tidx, :] = np.random.multivariate_normal(soln.ix[tidx, :], noise**2 * np.eye(N))
+            #pdb.set_trace()
+            soln.ix[tidx, :] = np.random.multivariate_normal(soln.ix[tidx, :], noise.values**2 * np.eye(N))
         soln[soln < 0] = 0
 
     # we only take out the times in time_points
     #pdb.set_trace()
-    dat = soln.ix[time_points*60, network_nodes]
-    dat['Timepoint'] = time_points
+    dat = soln.ix[t_range, network_nodes]
+    dat['Timepoint'] = t_range
     dat['Inhibitor'] = 'None'
     dat['Cell Line'] = 'Xu'
     dat['Stimulus'] = 'EGF_{0}_Gap_{1}_Cilostamide_{2}_EPACA_{3}_PKAA_{4}'.format(EGF,Gap,Cilostamide,EPACA,PKAA)

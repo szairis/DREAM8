@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from pymatbridge import Matlab
 
-from utilities import prepare_markov_data, introduce_inhibs, score_network
+from utilities import prepare_markov_data, introduce_inhibs, score_network, score_predictions
 
 def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='full', stdise=1, silent=0, maxtime=120):
     '''
@@ -63,7 +63,7 @@ def network_hill(panel, prior_graph=[], lambdas=[], max_indegree=3, reg_mode='fu
 
     return (edge_prob, edge_sign)
 
-def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False):
+def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, ignore_self_loops=False, loss='ls', verbose=False):
     '''does gbr on design matrix.
     returns dict regGBR, one GBR for each column in the target (Y) matrix
 
@@ -76,34 +76,46 @@ def do_gbr(X, Y, n_estimators=100, learning_rate=0.1, max_depth=5, verbose=False
     regGBR = {}
 
     for target in Y.columns:
-        
         if verbose:
             print target
         
+        if ignore_self_loops:
+            X.ix[:, target] = 0
+
         # get target values
         y = Y[target].values
-        
+
         regGBR[target] = GradientBoostingRegressor(n_estimators=n_estimators,
                                                    learning_rate=learning_rate,
                                                    max_depth=max_depth,
-                                                   loss='ls')
+                                                   loss=loss)
         regGBR[target].fit(X, y)
         
+        if verbose:
+            if target is 'PKA':
+                print X.columns
+                print y
+                print regGBR[target].feature_importances_
+
     return regGBR
 
 
-def do_gbr_build_adj_matrix(regGBR, node_list, stims):   
+def do_gbr_build_adj_matrix(regGBR, full_node_list):
     '''take as input the regGBR object, build an adjacency matrix out of each stimulus
     '''
-    num_nodes = len(node_list)
     adj_dict = {}
-    for stim in stims:
-        adj = np.zeros((num_nodes, num_nodes), dtype='f')
-        for nidx, node in enumerate(node_list):
-            adj[:, nidx] = regGBR[stim][node].feature_importances_[:num_nodes]
-        adj_dict[stim] = pd.DataFrame(adj, index=node_list, columns=node_list)
+    target_nodes = regGBR.keys()
+    num_nodes = len(target_nodes)
+    adj = np.zeros((num_nodes, num_nodes), dtype='f')
+    for nidx1, node1 in enumerate(target_nodes):
+        features = {node : regGBR[node1].feature_importances_[tn] for tn,node in enumerate(full_node_list)}
+        for nidx2, node2 in enumerate(target_nodes):
+            adj[nidx1, nidx2] = features[node2]
+
+    adj = adj.T
+    adj = pd.DataFrame(adj, index=target_nodes, columns=target_nodes)
         
-    return adj_dict
+    return adj
 
 
 def timeseries_gbr(regGBR, scaler, scaler_cols, data, node_list, stims, inhibs, cov_columns, times, test_inhib_targets, dataset='experimental'):
@@ -174,15 +186,18 @@ def timeseries_gbr(regGBR, scaler, scaler_cols, data, node_list, stims, inhibs, 
     return pred_dict
 
 
-def network_gbr_cv(X, Y, verbose=False, n_estimators=100, learning_rate=0.1, max_depth=5):
+def do_gbr_cv(X, Y, verbose=False, n_estimators=100, learning_rate=0.1, loss='ls', ignore_self_loops=False, max_depth=5):
     '''this is just dumped in here. does gbr with cv
     '''
-    
+    from sklearn import cross_validation    
+    from sklearn.ensemble import GradientBoostingRegressor
+
     n_folds = 5
     kf = list(cross_validation.KFold(X.shape[0], n_folds=n_folds, shuffle=True))
     
     regGBR = {}
     test_score = {}
+    mse = {}
 
     for target in Y.columns:
         
@@ -194,7 +209,11 @@ def network_gbr_cv(X, Y, verbose=False, n_estimators=100, learning_rate=0.1, max
         
         regGBR[target] = []
         test_score[target] = []
+        mse[target] = []
         
+        if ignore_self_loops:
+            X.ix[:, target] = 0
+
         for fold in range(n_folds):
             if verbose:
                 print 'cv fold ', fold
@@ -204,17 +223,18 @@ def network_gbr_cv(X, Y, verbose=False, n_estimators=100, learning_rate=0.1, max
             regGBR[target].append(GradientBoostingRegressor(n_estimators=n_estimators,
                                                             learning_rate=learning_rate,
                                                             max_depth=max_depth,
-                                                            loss='ls'))
+                                                            loss=loss))
             regGBR[target][fold].fit(X_train, y_train)
         
             test_score[target].append(np.zeros((n_estimators,), dtype=np.float64))
+            mse[target].append(np.zeros((n_estimators,), dtype=np.float64))
             
             for i, y_pred in enumerate(regGBR[target][fold].staged_decision_function(X_test)):
                 test_score[target][fold][i] = regGBR[target][fold].loss_(y_test, y_pred)
+                mse[target][fold][i] = score_predictions(y_test, y_pred) 
         
-        #mse = mean_squared_error(y_test, regGBR[target].predict(logB_test))
         
-    return regGBR, test_score
+    return regGBR, test_score, mse
 
 
 def network_lasso(data, response_type='level', ground_truth=None, inhib_targets=None, perfect=True, group_stimuli=False):
